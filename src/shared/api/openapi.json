@@ -1,0 +1,723 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Elasticsearch Search Platform API",
+    "version": "0.1.0",
+    "description": "A search platform over a medical-products catalog, built on Elasticsearch and exposed through Django REST Framework.\n\nThe repository demonstrates explicit mappings, custom analyzers, relevance engineering, fuzzy and phrase matching, synonyms, autocomplete, filtering, faceted search, highlighting, explainability, bulk indexing, and zero-downtime reindexing."
+  },
+  "paths": {
+    "/": {
+      "get": {
+        "operationId": "root_retrieve",
+        "description": "Return the service identity and a coarse status marker. Used by smoke tests and by infrastructure health probes.",
+        "tags": ["service"],
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "basicAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceRootResponse"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/search/": {
+      "post": {
+        "operationId": "search_create",
+        "description": "Search the product catalog. Supports filtering, business sorting, cursor and offset pagination, highlighting, and (optionally) faceted navigation.",
+        "tags": ["search"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchRequestRequest"
+              },
+              "examples": {
+                "Simple": {
+                  "value": {
+                    "query": "wireless headphones"
+                  },
+                  "description": "Full-text search with default pagination and relevance order."
+                },
+                "Filtered": {
+                  "value": {
+                    "query": "monitor",
+                    "page": 1,
+                    "page_size": 10,
+                    "filters": {
+                      "category": "Electronics",
+                      "price_min": 100.0,
+                      "price_max": 500.0,
+                      "availability": "in_stock"
+                    },
+                    "sort": {
+                      "field": "price",
+                      "direction": "asc"
+                    }
+                  },
+                  "description": "Category and price filters with price-ascending sort."
+                },
+                "Faceted": {
+                  "value": {
+                    "query": "wireless",
+                    "page_size": 20,
+                    "include_facets": true
+                  },
+                  "description": "Search with facet counts included in the response."
+                },
+                "CursorPagination": {
+                  "value": {
+                    "query": "wireless",
+                    "page_size": 20,
+                    "cursor": [4.2, "SKU-1001"]
+                  },
+                  "summary": "Cursor pagination",
+                  "description": "Cursor-based pagination using a value from a prior response."
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "basicAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResponse"
+                }
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": ""
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": ""
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/suggest/": {
+      "get": {
+        "operationId": "suggest_retrieve",
+        "description": "Return autocomplete suggestions for a partial query.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Maximum number of suggestions to return.",
+            "examples": {
+              "Default": {
+                "value": 5
+              }
+            }
+          },
+          {
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Partial query text.",
+            "required": true,
+            "examples": {
+              "Default": {
+                "value": "headph"
+              }
+            }
+          }
+        ],
+        "tags": ["search"],
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "basicAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuggestResponse"
+                }
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": ""
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/explain/": {
+      "post": {
+        "operationId": "explain_create",
+        "description": "Return the scoring breakdown for a (query, document_id) pair. If the document does not match, matched is false and explanation is null.",
+        "tags": ["search"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExplainRequestRequest"
+              },
+              "examples": {
+                "ExplainADocument": {
+                  "value": {
+                    "query": "wireless headphones",
+                    "document_id": "SKU-1001"
+                  },
+                  "summary": "Explain a document"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "basicAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExplainResponse"
+                }
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": ""
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": ""
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/health/": {
+      "get": {
+        "operationId": "health_retrieve",
+        "description": "Report the platform's ability to serve searches. The status is healthy when the cluster is reachable, the alias resolves, and the index has documents; degraded when one of those is false; unhealthy when the cluster is unreachable. The HTTP status is 200 in every case; the JSON body carries the status.",
+        "tags": ["service"],
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "basicAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            },
+            "description": ""
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ApiError": {
+        "type": "object",
+        "description": "The response body of every API error.\n\nSee docs/24-search-api.md section 7 and docs/25-openapi.md section 5.",
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/ApiErrorDetail"
+          }
+        },
+        "required": ["error"]
+      },
+      "ApiErrorDetail": {
+        "type": "object",
+        "description": "The inner ``error`` object of every error response.\n\nAttributes:\n    code: Stable identifier the caller branches on.\n    message: Human-readable description.\n    details: Optional structured context. Absent when there is none.",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "details": {
+            "type": "object",
+            "additionalProperties": {}
+          }
+        },
+        "required": ["code", "message"]
+      },
+      "ClusterHealth": {
+        "type": "object",
+        "description": "Cluster-level health information.",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "number_of_nodes": {
+            "type": "integer"
+          }
+        },
+        "required": ["name", "number_of_nodes", "status"]
+      },
+      "ExplainRequestRequest": {
+        "type": "object",
+        "description": "Body of an explain request.",
+        "properties": {
+          "query": {
+            "type": "string",
+            "minLength": 1
+          },
+          "document_id": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": ["document_id", "query"]
+      },
+      "ExplainResponse": {
+        "type": "object",
+        "description": "Response body of ``POST /api/explain/``.\n\nThe ``explanation`` field is a recursive JSON object whose shape is\ndefined by the domain's ``ScoreExplanation`` value object (Phase 16\nsection 4.1). The API does not re-declare the recursion in its\nschema; the domain tests own that contract.",
+        "properties": {
+          "matched": {
+            "type": "boolean",
+            "description": "True if the document matched the query."
+          },
+          "explanation": {
+            "type": "object",
+            "additionalProperties": {},
+            "nullable": true,
+            "description": "The scoring breakdown tree, or null when the document did not match. See docs/21-explainability.md."
+          }
+        },
+        "required": ["explanation", "matched"]
+      },
+      "FacetBucket": {
+        "type": "object",
+        "description": "One bucket of a facet.",
+        "properties": {
+          "value": {
+            "type": "string"
+          },
+          "count": {
+            "type": "integer"
+          }
+        },
+        "required": ["count", "value"]
+      },
+      "Facets": {
+        "type": "object",
+        "description": "The four facets computed over a search's result set.",
+        "properties": {
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FacetBucket"
+            }
+          },
+          "brands": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FacetBucket"
+            }
+          },
+          "availability": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FacetBucket"
+            }
+          },
+          "price_ranges": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FacetBucket"
+            }
+          }
+        },
+        "required": ["availability", "brands", "categories", "price_ranges"]
+      },
+      "FilterRequest": {
+        "type": "object",
+        "description": "Optional filter predicates. Every field is optional.",
+        "properties": {
+          "category": {
+            "type": "string",
+            "minLength": 1
+          },
+          "brand": {
+            "type": "string",
+            "minLength": 1
+          },
+          "availability": {
+            "type": "string",
+            "minLength": 1
+          },
+          "price_min": {
+            "type": "number",
+            "format": "double"
+          },
+          "price_max": {
+            "type": "number",
+            "format": "double"
+          },
+          "rating_min": {
+            "type": "number",
+            "format": "double"
+          },
+          "rating_max": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "HealthResponse": {
+        "type": "object",
+        "description": "Response body of ``GET /api/health/``.",
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/HealthResponseStatusEnum"
+          },
+          "cluster": {
+            "$ref": "#/components/schemas/ClusterHealth"
+          },
+          "index": {
+            "$ref": "#/components/schemas/IndexHealth"
+          }
+        },
+        "required": ["cluster", "index", "status"]
+      },
+      "HealthResponseStatusEnum": {
+        "enum": ["healthy", "degraded", "unhealthy"],
+        "type": "string",
+        "description": "* `healthy` - healthy\n* `degraded` - degraded\n* `unhealthy` - unhealthy"
+      },
+      "Hit": {
+        "type": "object",
+        "description": "One hit in a search response.",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Document identifier."
+          },
+          "score": {
+            "type": "number",
+            "format": "double",
+            "description": "Relevance score."
+          },
+          "source": {
+            "type": "object",
+            "additionalProperties": {},
+            "description": "The document's fields. Treated as opaque by the API."
+          },
+          "highlights": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "description": "Mapping from field name to the fragments that matched. Fields that did not match are absent."
+          }
+        },
+        "required": ["highlights", "id", "score", "source"]
+      },
+      "IndexHealth": {
+        "type": "object",
+        "description": "Index-level health information.",
+        "properties": {
+          "alias": {
+            "type": "string",
+            "description": "The alias all searches go through."
+          },
+          "points_at": {
+            "type": "string",
+            "nullable": true,
+            "description": "The physical index the alias currently resolves to. Null if the alias does not exist yet."
+          },
+          "document_count": {
+            "type": "integer",
+            "description": "Number of documents in the index the alias points at."
+          }
+        },
+        "required": ["alias", "document_count", "points_at"]
+      },
+      "SearchRequestRequest": {
+        "type": "object",
+        "description": "Body of a search request.",
+        "properties": {
+          "query": {
+            "type": "string",
+            "minLength": 1
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "page_size": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "cursor": {
+            "type": "array",
+            "items": {},
+            "description": "Sort values of the last hit on the previous page. When supplied, ``page`` is ignored and pagination is cursor-based."
+          },
+          "filters": {
+            "$ref": "#/components/schemas/FilterRequest"
+          },
+          "sort": {
+            "$ref": "#/components/schemas/SortRequest"
+          },
+          "include_facets": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": ["query"]
+      },
+      "SearchResponse": {
+        "type": "object",
+        "description": "Response body of ``POST /api/search/``.",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "The text that was searched for."
+          },
+          "total": {
+            "type": "integer",
+            "description": "Total number of matching documents across the index."
+          },
+          "page": {
+            "type": "integer",
+            "nullable": true,
+            "description": "Offset-based pagination page number. Null when the search was cursor-based."
+          },
+          "page_size": {
+            "type": "integer"
+          },
+          "returned": {
+            "type": "integer",
+            "description": "Number of hits in this page."
+          },
+          "has_more": {
+            "type": "boolean",
+            "description": "True if more hits exist beyond this page."
+          },
+          "next_cursor": {
+            "type": "array",
+            "items": {},
+            "nullable": true,
+            "description": "Sort values of the last hit on this page. Pass back as ``cursor`` in the next request to fetch the following page."
+          },
+          "hits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Hit"
+            }
+          },
+          "facets": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Facets"
+              }
+            ],
+            "nullable": true,
+            "description": "Present only when the request set ``include_facets`` to true."
+          }
+        },
+        "required": ["has_more", "hits", "page", "page_size", "query", "returned", "total"]
+      },
+      "ServiceRootResponse": {
+        "type": "object",
+        "description": "Response shape of the service-root endpoint.",
+        "properties": {
+          "service": {
+            "type": "string",
+            "description": "Service identifier."
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ServiceRootResponseStatusEnum"
+              }
+            ],
+            "description": "Coarse service state derived from backend reachability.\n\n* `healthy` - healthy\n* `degraded` - degraded"
+          }
+        },
+        "required": ["service", "status"]
+      },
+      "ServiceRootResponseStatusEnum": {
+        "enum": ["healthy", "degraded"],
+        "type": "string",
+        "description": "* `healthy` - healthy\n* `degraded` - degraded"
+      },
+      "SortRequest": {
+        "type": "object",
+        "description": "A field and direction. Both fields are optional; domain defaults apply.",
+        "properties": {
+          "field": {
+            "type": "string",
+            "minLength": 1
+          },
+          "direction": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "SuggestResponse": {
+        "type": "object",
+        "description": "Response body of ``GET /api/suggest/``.",
+        "properties": {
+          "prefix": {
+            "type": "string",
+            "description": "The prefix that was searched."
+          },
+          "suggestions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Full product names that matched the prefix."
+          }
+        },
+        "required": ["prefix", "suggestions"]
+      }
+    },
+    "securitySchemes": {
+      "basicAuth": {
+        "type": "http",
+        "scheme": "basic"
+      },
+      "cookieAuth": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "sessionid"
+      }
+    }
+  }
+}

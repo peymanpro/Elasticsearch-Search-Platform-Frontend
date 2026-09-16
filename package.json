@@ -17,7 +17,9 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
     "arch": "depcruise src --config .dependency-cruiser.cjs",
-    "arch:graph": "depcruise src --config .dependency-cruiser.cjs --output-type dot | dot -T svg > docs/dependency-graph.svg"
+    "arch:graph": "depcruise src --config .dependency-cruiser.cjs --output-type dot | dot -T svg > docs/dependency-graph.svg",
+    "fetch:schema": "curl.exe --silent --max-time 15 -o src/shared/api/openapi.json http://localhost:8000/api/schema/?format=json",
+    "generate:api-types": "openapi-typescript src/shared/api/openapi.json -o src/shared/api/generated/openapi.d.ts"
   },
   "dependencies": {
     "react": "^19.2.8",
@@ -42,6 +44,7 @@
     "eslint-plugin-react-refresh": "^0.5.7",
     "globals": "^17.12.0",
     "jsdom": "^26.1.0",
+    "openapi-typescript": "^7.13.0",
     "prettier": "^3.9.6",
     "tailwindcss": "^4.3.3",
     "typescript": "~6.0.2",
