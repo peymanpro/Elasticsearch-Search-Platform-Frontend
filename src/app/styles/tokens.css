@@ -1,0 +1,64 @@
+/**
+ * Design tokens for Search Lens.
+ *
+ * Tailwind v4 reads these via @theme. Color values are exposed as CSS
+ * variables so dark mode can override them without a second utility
+ * class in every component.
+ *
+ * The palette is a small, neutral scale plus a single accent. Search
+ * products are dense; loud colors compete with results.
+ */
+
+@theme {
+  --color-bg: oklch(100% 0 0);
+  --color-bg-muted: oklch(97% 0 0);
+  --color-surface: oklch(100% 0 0);
+  --color-surface-muted: oklch(96% 0 0);
+  --color-border: oklch(90% 0 0);
+  --color-border-strong: oklch(80% 0 0);
+
+  --color-fg: oklch(20% 0 0);
+  --color-fg-muted: oklch(45% 0 0);
+  --color-fg-subtle: oklch(60% 0 0);
+
+  --color-accent: oklch(55% 0.18 255);
+  --color-accent-fg: oklch(100% 0 0);
+  --color-accent-muted: oklch(94% 0.04 255);
+
+  --color-success: oklch(58% 0.15 150);
+  --color-warning: oklch(70% 0.16 75);
+  --color-danger: oklch(55% 0.2 25);
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.06);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.08);
+
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+}
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  .dark {
+    --color-bg: oklch(15% 0.005 260);
+    --color-bg-muted: oklch(18% 0.005 260);
+    --color-surface: oklch(20% 0.008 260);
+    --color-surface-muted: oklch(23% 0.008 260);
+    --color-border: oklch(28% 0.01 260);
+    --color-border-strong: oklch(38% 0.01 260);
+
+    --color-fg: oklch(96% 0.005 260);
+    --color-fg-muted: oklch(72% 0.01 260);
+    --color-fg-subtle: oklch(55% 0.01 260);
+
+    --color-accent: oklch(70% 0.16 255);
+    --color-accent-fg: oklch(15% 0.005 260);
+    --color-accent-muted: oklch(30% 0.06 255);
+  }
+}
