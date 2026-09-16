@@ -190,3 +190,47 @@ function cleanInput(
   }
   return out;
 }
+
+/**
+ * Convert SearchParams to a plain string record, which is what
+ * TanStack Router accepts as a `search` value for `navigate()`.
+ *
+ * The rules match `serializeSearchParams`: defaults are omitted, so
+ * the resulting record produces the same canonical URL.
+ */
+export function searchParamsToRecord(params: SearchParams): Record<string, string> {
+  const out: Record<string, string> = { q: params.q };
+  if (params.category !== undefined) out.category = params.category;
+  if (params.brand !== undefined) out.brand = params.brand;
+  if (params.availability !== undefined) out.availability = params.availability;
+  if (params.price_min !== undefined) out.price_min = String(params.price_min);
+  if (params.price_max !== undefined) out.price_max = String(params.price_max);
+  if (params.rating_min !== undefined) out.rating_min = String(params.rating_min);
+  if (params.rating_max !== undefined) out.rating_max = String(params.rating_max);
+  if (params.sort !== undefined && !isDefaultSort(params.sort)) {
+    out.sort = `${params.sort.field}.${params.sort.direction}`;
+  }
+  if (params.page !== 1) out.page = String(params.page);
+  return out;
+}
+
+/**
+ * Apply a patch to SearchParams, removing fields whose value is
+ * undefined. `q` is always preserved from the original.
+ */
+export function applySearchParamsPatch(
+  params: SearchParams,
+  patch: SearchParamsPatch,
+): SearchParams {
+  const result: Record<string, unknown> = { ...params, page: 1 };
+  for (const key of Object.keys(patch) as (keyof SearchParamsPatch)[]) {
+    if (key === 'q') continue;
+    const value = patch[key];
+    if (value === undefined) {
+      delete result[key];
+    } else {
+      result[key] = value;
+    }
+  }
+  return result as unknown as SearchParams;
+}

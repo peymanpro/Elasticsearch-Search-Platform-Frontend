@@ -9,6 +9,7 @@ interface ButtonProps extends Omit<ComponentProps<'button'>, 'className'> {
   variant?: ButtonVariant;
   size?: ButtonSize;
   loading?: boolean;
+  className?: string | undefined;
   children: ReactNode;
 }
 
@@ -33,6 +34,7 @@ export function Button({
   loading = false,
   disabled,
   type = 'button',
+  className,
   children,
   ...rest
 }: ButtonProps) {
@@ -49,6 +51,7 @@ export function Button({
         'disabled:cursor-not-allowed disabled:opacity-50',
         VARIANTS[variant],
         SIZES[size],
+        className,
       )}
     >
       {loading ? <span aria-hidden="true">…</span> : null}
