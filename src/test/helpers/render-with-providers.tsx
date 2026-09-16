@@ -1,6 +1,11 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { renderHook, type RenderHookResult } from '@testing-library/react';
-import type { ReactNode } from 'react';
+import {
+  render,
+  renderHook,
+  type RenderHookResult,
+  type RenderResult,
+} from '@testing-library/react';
+import type { ReactElement, ReactNode } from 'react';
 
 /**
  * A QueryClient tuned for tests: no retries (a failing request must
@@ -22,6 +27,12 @@ interface WrapperOptions {
   client?: QueryClient;
 }
 
+function makeWrapper(client: QueryClient) {
+  return function Wrapper({ children }: { children: ReactNode }) {
+    return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
+  };
+}
+
 /**
  * Render a hook inside a QueryClientProvider. Returns the render
  * result together with the client so a test can inspect the cache.
@@ -31,9 +42,20 @@ export function renderHookWithProviders<Result, Props>(
   options: WrapperOptions = {},
 ): RenderHookResult<Result, Props> & { client: QueryClient } {
   const client = options.client ?? createTestQueryClient();
-  const wrapper = ({ children }: { children: ReactNode }) => (
-    <QueryClientProvider client={client}>{children}</QueryClientProvider>
-  );
-  const result = renderHook<Result, Props>(hook, { wrapper });
+  const result = renderHook<Result, Props>(hook, { wrapper: makeWrapper(client) });
+  return { ...result, client };
+}
+
+/**
+ * Render a React element inside a QueryClientProvider. Returns the
+ * render result together with the client so a test can inspect the
+ * cache.
+ */
+export function renderWithProviders(
+  ui: ReactElement,
+  options: WrapperOptions = {},
+): RenderResult & { client: QueryClient } {
+  const client = options.client ?? createTestQueryClient();
+  const result = render(ui, { wrapper: makeWrapper(client) });
   return { ...result, client };
 }
