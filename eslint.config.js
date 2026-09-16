@@ -93,4 +93,11 @@ export default tseslint.config(
     },
   },
   ...featureOverrides,
+
+  {
+    files: ['src/routes/**/*.{ts,tsx}', 'src/routeTree.gen.ts'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
 );
