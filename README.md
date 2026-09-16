@@ -41,6 +41,50 @@ All planned phases are implemented. The project is at `v0.1.0`.
 - There is no search-mode selector. The backend exposes one ranking path.
 - Cursor values are never placed in the URL (see ADR-004).
 
+## Search Task Coverage
+
+This project implements a full-stack search application over a
+document dataset. The requirements and where each is addressed:
+
+| Requirement                                  | Where it lives                                                                               |
+| -------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| Backend: keyword search                      | `POST /api/search/` with BM25 relevance and field boosts                                     |
+| Backend: at least 2 filters                  | 7 filters: category, brand, availability, price_min/max, rating_min/max                      |
+| Backend: Elasticsearch (or simple DB search) | Elasticsearch 8.15.3 with custom mappings and analyzers                                      |
+| Frontend: search input                       | `SearchBar` with draft state and autocomplete dropdown                                       |
+| Frontend: at least 2 filters                 | `FilterPanel` (desktop sidebar, mobile drawer) with server-side facet counts                 |
+| Frontend: result list                        | `ResultList` with highlighted fields and safe HTML parsing                                   |
+| Data: storage design                         | JSONL dataset bulk-indexed into a physical index behind an alias                             |
+| Data: index or search preparation            | Custom analyzer for stemming; `keyword` fields for filters; `text` fields for relevance      |
+| Deliverable: README                          | This file plus `CONTRIBUTING.md`, `docs/architecture.md`, `docs/api-pipeline.md`, and 4 ADRs |
+
+### About the Dataset
+
+The dataset used in this repository is a product catalog. The choice
+of dataset is orthogonal to the architecture: nothing in the pipeline
+(URL state, HTTP adapter, Zod validation, view model, UI) knows what
+kind of document it is carrying. The dataset is a stand-in for any
+collection of entities with a text-searchable field and a handful of
+filterable dimensions.
+
+The architecture is designed to be reused with a different document
+type without changes to the API contract, the URL state model, the
+HTTP client, or the Zod validation layer. Four changes, all local to
+the data layer, are enough:
+
+1. **Backend domain**: replace the product document with the target
+   entity type (whichever fields the new dataset carries).
+2. **Elasticsearch mapping**: declare `keyword` fields for whatever
+   the new filters need, and `text` fields for whatever should
+   participate in relevance.
+3. **Backend filters**: swap the filter set for the new dimensions.
+   The filter DSL, the request shape, and the response shape do not
+   change.
+4. **Frontend view model**: replace the single mapper that reads the
+   opaque `source` field with one that knows the new shape. The rest
+   of the pipeline (search hook, result list, filter panel,
+   pagination, explain drawer) is dataset-agnostic.
+
 ## Stack
 
 | Concern             | Choice                                      |

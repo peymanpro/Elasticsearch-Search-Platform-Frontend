@@ -18,8 +18,8 @@ function AboutPage() {
           <p>
             Search Lens exposes the platform&apos;s search, autocomplete, scoring explanation, and
             health endpoints through a small, accessible, and fully typed UI. It supports filtering,
-            business sorting, faceted navigation, offset and cursor pagination, and safe rendering
-            of Elasticsearch highlight fragments.
+            business sorting, faceted navigation, offset pagination, and safe rendering of
+            Elasticsearch highlight fragments.
           </p>
         </div>
 
@@ -33,6 +33,22 @@ function AboutPage() {
             <li>It exposes no index management. Reindexing is a backend command.</li>
             <li>It does not offer a search-mode selector. The backend exposes one ranking path.</li>
           </ul>
+        </div>
+
+        <div>
+          <h2 className="mb-2 text-base font-semibold text-[var(--color-fg)]">The dataset</h2>
+          <p>
+            The dataset shipped with this demo is a product catalog. Nothing in the pipeline - the
+            URL state, the HTTP adapter, the Zod validation layer, the view model, or the UI - knows
+            what kind of document it is carrying. Swapping the dataset for another entity type
+            requires four local changes: the backend domain type, the Elasticsearch mapping, the
+            filter set, and the single frontend mapper that reads the opaque{' '}
+            <code className="rounded bg-[var(--color-surface-muted)] px-1 font-mono text-xs">
+              source
+            </code>{' '}
+            field. The API contract, the URL model, the HTTP client, and the validation layer do not
+            change.
+          </p>
         </div>
 
         <div>
