@@ -6,12 +6,28 @@ import { ThemeToggle } from '@/shared/ui/theme-toggle';
 export function AppShell() {
   return (
     <div className="flex min-h-screen flex-col bg-[var(--color-bg)] text-[var(--color-fg)]">
+      <SkipLink />
       <Header />
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         <Outlet />
       </main>
       <Footer />
     </div>
+  );
+}
+
+/**
+ * Lets keyboard users jump past the header and navigation to the main
+ * content. Hidden visually until focused.
+ */
+function SkipLink() {
+  return (
+    <a
+      href="#main-content"
+      className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-[var(--radius-md)] focus:bg-[var(--color-surface)] focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-[var(--color-fg)] focus:shadow-[var(--shadow-md)] focus:outline-2 focus:outline-offset-2 focus:outline-[var(--color-accent)]"
+    >
+      Skip to main content
+    </a>
   );
 }
 
@@ -62,7 +78,7 @@ function NavLink({ to, label }: NavLinkProps) {
 function Footer() {
   return (
     <footer className="border-t border-[var(--color-border)] py-4 text-center text-xs text-[var(--color-fg-subtle)]">
-      Search Lens — a read-only frontend for the Elasticsearch Search Platform.
+      Search Lens - a read-only frontend for the Elasticsearch Search Platform.
     </footer>
   );
 }
