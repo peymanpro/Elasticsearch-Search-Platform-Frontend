@@ -169,9 +169,3 @@ same command as a behavior regression.
     state.
   - [ADR-004](docs/adr/004-cursor-pagination.md): cursor pagination
     is transient.
-
-## License
-
-No license has been chosen yet. Until one is, the code is
-"all rights reserved" by default. This will be revisited before the
-first public announcement.
