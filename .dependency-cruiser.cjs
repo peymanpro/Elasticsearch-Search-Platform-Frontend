@@ -33,7 +33,10 @@ module.exports = {
       severity: 'error',
       comment: 'Do not import modules that cannot be resolved (except ambient types).',
       from: { pathNot: '\\.d\\.ts$' },
-      to: { couldNotResolve: true },
+      to: {
+        couldNotResolve: true,
+        pathNot: ['^node$', '^node:', '^vite/client$'],
+      },
     },
     {
       name: 'no-dev-dep-in-src',
