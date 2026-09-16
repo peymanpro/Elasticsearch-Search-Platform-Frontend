@@ -21,7 +21,9 @@
     "fetch:schema": "curl.exe --silent --max-time 15 -o src/shared/api/openapi.json http://localhost:8000/api/schema/?format=json",
     "generate:api-types": "openapi-typescript src/shared/api/openapi.json -o src/shared/api/generated/openapi.d.ts",
     "routes:generate": "tsr generate",
-    "routes:watch": "tsr watch"
+    "routes:watch": "tsr watch",
+    "e2e": "playwright test",
+    "e2e:ui": "playwright test --ui"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.102.8",
@@ -33,6 +35,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/vite": "^4.3.3",
     "@tanstack/router-cli": "^1.167.36",
     "@tanstack/router-devtools": "^1.167.2",

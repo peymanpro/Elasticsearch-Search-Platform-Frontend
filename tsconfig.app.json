@@ -28,5 +28,6 @@
     "useUnknownInCatchVariables": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["e2e", "node_modules", "dist", "playwright.config.ts"]
 }
