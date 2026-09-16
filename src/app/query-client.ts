@@ -1,5 +1,7 @@
 import { QueryClient } from '@tanstack/react-query';
 
+import { shouldRetry } from '@/shared/api/retry-policy';
+
 /**
  * The single QueryClient instance for the application.
  *
@@ -10,8 +12,8 @@ import { QueryClient } from '@tanstack/react-query';
  *   - gcTime: 5m. Results are kept in the cache for five minutes after
  *     the last subscriber unmounts, so going back to a previous search
  *     is instant.
- *   - retry: 1. One retry on transient failure. More would slow down
- *     recovery from a genuinely down backend.
+ *   - retry: shouldRetry, which distinguishes client errors (never
+ *     retry) from transient backend failures (retry once).
  *   - refetchOnWindowFocus: false. Search results should not silently
  *     change while the user is reading them.
  */
@@ -21,7 +23,7 @@ export function createQueryClient(): QueryClient {
       queries: {
         staleTime: 30_000,
         gcTime: 5 * 60_000,
-        retry: 1,
+        retry: shouldRetry,
         refetchOnWindowFocus: false,
       },
     },
