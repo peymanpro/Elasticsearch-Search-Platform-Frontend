@@ -48,6 +48,17 @@ export interface SearchParams {
   page: number;
 }
 
+/**
+ * A patch for SearchParams where every key can be set to `undefined` to
+ * remove it. Needed because `exactOptionalPropertyTypes` treats a
+ * `Partial<T>` field as "either the type or the key is absent", not as
+ * "the value may be undefined". UI callers that clear a filter need to
+ * pass `{ key: undefined }` explicitly.
+ */
+export type SearchParamsPatch = {
+  [K in keyof SearchParams]?: SearchParams[K] | undefined;
+};
+
 const RawSearchParamsSchema = z.object({
   q: z.string().min(MIN_QUERY_LENGTH).max(MAX_QUERY_LENGTH),
   category: z.string().min(1).optional(),
