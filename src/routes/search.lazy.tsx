@@ -2,6 +2,7 @@ import { createLazyFileRoute, useNavigate } from '@tanstack/react-router';
 import { useCallback, useMemo, useState } from 'react';
 
 import { useSuggest } from '@/features/autocomplete/api/use-suggest';
+import { ExplainDrawer } from '@/features/explain/ui/explain-drawer';
 import { FilterChips } from '@/features/filters/ui/filter-chips';
 import { FilterPanel } from '@/features/filters/ui/filter-panel';
 import { useSearch } from '@/features/search/api/use-search';
@@ -154,18 +155,19 @@ function SearchPage() {
               onPageChange={handlePageChange}
             />
           ) : null}
-
-          {selectedDocumentId ? (
-            <p className="text-xs text-[var(--color-fg-subtle)]">
-              Explain for {selectedDocumentId} will open in the drawer (Phase 9).
-            </p>
-          ) : null}
         </section>
       </div>
 
       <Drawer open={filtersOpen} onClose={() => setFiltersOpen(false)} side="left" title="Filters">
         {filterPanel}
       </Drawer>
+
+      <ExplainDrawer
+        open={selectedDocumentId !== null}
+        onClose={() => setSelectedDocumentId(null)}
+        query={params.q}
+        documentId={selectedDocumentId}
+      />
     </div>
   );
 }
