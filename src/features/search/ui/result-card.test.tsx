@@ -50,7 +50,13 @@ describe('ResultCard', () => {
 
   it('renders the availability badge', () => {
     render(<ResultCard hit={mapSearchHit(buildHit())} onExplain={() => {}} />);
-    expect(screen.getByText('in_stock')).toBeInTheDocument();
+    // in_stock appears twice: as a badge and in technical details.
+    expect(screen.getAllByText('in_stock').length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('renders a technical details disclosure', () => {
+    render(<ResultCard hit={mapSearchHit(buildHit())} onExplain={() => {}} />);
+    expect(screen.getByText('Technical details')).toBeInTheDocument();
   });
 
   it('renders the rating', () => {

@@ -1,6 +1,7 @@
 import { Badge } from '@/shared/ui/badge';
 import { Button } from '@/shared/ui/button';
 import { Highlight } from '@/shared/ui/highlight';
+import { TechnicalDetails } from '@/shared/ui/technical-details';
 
 import type { SearchHitViewModel } from '../lib/map-search-hit';
 
@@ -30,6 +31,18 @@ const AVAILABILITY_TONE: Record<string, 'neutral' | 'success' | 'warning' | 'dan
   discontinued: 'neutral',
 };
 
+function buildTechnicalEntries(hit: SearchHitViewModel): Array<{ label: string; value: string }> {
+  const entries: Array<{ label: string; value: string }> = [
+    { label: 'ID', value: hit.id },
+    { label: 'Score', value: hit.score.toFixed(4) },
+  ];
+  if (hit.sku !== null) entries.push({ label: 'SKU', value: hit.sku });
+  if (hit.currency !== null) entries.push({ label: 'Currency', value: hit.currency });
+  if (hit.availability !== null) {
+    entries.push({ label: 'Availability', value: hit.availability });
+  }
+  return entries;
+}
 export function ResultCard({ hit, onExplain }: ResultCardProps) {
   const priceText = formatPrice(hit.price, hit.currency);
   const availabilityTone = hit.availability
@@ -114,6 +127,8 @@ export function ResultCard({ hit, onExplain }: ResultCardProps) {
           Why this result?
         </Button>
       </footer>
+
+      <TechnicalDetails entries={buildTechnicalEntries(hit)} />
     </article>
   );
 }
