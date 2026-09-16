@@ -1,13 +1,7 @@
-import { Outlet, createRootRoute } from '@tanstack/react-router';
+import { createRootRoute } from '@tanstack/react-router';
+
+import { AppShell } from './-app-shell';
 
 export const Route = createRootRoute({
-  component: RootLayout,
+  component: AppShell,
 });
-
-function RootLayout() {
-  return (
-    <div className="min-h-screen bg-[var(--color-bg)] text-[var(--color-fg)]">
-      <Outlet />
-    </div>
-  );
-}
