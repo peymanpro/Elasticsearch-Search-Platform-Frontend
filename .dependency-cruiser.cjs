@@ -41,11 +41,7 @@ module.exports = {
       comment: 'Production code in src must not import devDependencies.',
       from: {
         path: '^src/',
-        pathNot: [
-          '\\.test\\.(ts|tsx)$',
-          '\\.spec\\.(ts|tsx)$',
-          '^src/test/',
-        ],
+        pathNot: ['\\.test\\.(ts|tsx)$', '\\.spec\\.(ts|tsx)$', '^src/test/'],
       },
       to: { dependencyTypes: ['npm-dev'] },
     },
