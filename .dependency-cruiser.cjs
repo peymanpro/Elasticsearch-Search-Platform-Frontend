@@ -80,10 +80,13 @@ module.exports = {
       to: { path: '^src/(app|routes)/' },
     },
     {
-      name: 'shared-not-to-test',
+      name: 'production-not-to-test',
       severity: 'error',
-      comment: 'Production code must not import from src/test.',
-      from: { path: '^src/(?!test/)' },
+      comment: 'Production code (non-test files) must not import from src/test.',
+      from: {
+        path: '^src/',
+        pathNot: ['^src/test/', '\\.test\\.(ts|tsx)$', '\\.spec\\.(ts|tsx)$'],
+      },
       to: { path: '^src/test/' },
     },
   ],

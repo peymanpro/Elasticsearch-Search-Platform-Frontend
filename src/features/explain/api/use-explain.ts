@@ -13,9 +13,9 @@ interface UseExplainParams {
 /**
  * Fetch the scoring explanation for a (query, document) pair.
  *
- * The query is disabled by default. The explain drawer calls
- * `refetch()` when the user opens it for a specific hit, so the
- * request only fires on demand, not whenever a hit appears.
+ * The query is disabled when `params` is null. The explain drawer
+ * only mounts the hook (with params) once a document is selected, so
+ * the request fires on selection, not on page load.
  *
  * Pass `null` when no document is selected.
  */
@@ -33,7 +33,7 @@ export function useExplain(
       }
       return explainScore({ query: params.query, document_id: params.documentId }, signal);
     },
-    enabled: false,
+    enabled: params !== null,
     staleTime: 5 * 60_000,
     gcTime: 10 * 60_000,
   });
