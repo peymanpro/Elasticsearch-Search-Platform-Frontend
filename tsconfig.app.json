@@ -4,24 +4,18 @@
     "target": "es2023",
     "lib": ["ES2023", "DOM", "DOM.Iterable"],
     "module": "esnext",
-    "types": ["vite/client"],
+    "types": ["vite/client", "vitest/globals", "@testing-library/jest-dom"],
     "allowArbitraryExtensions": true,
     "skipLibCheck": true,
-
-    /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
-
-    /* Path aliases (relative to this file; no baseUrl) */
     "paths": {
       "@/*": ["./src/*"]
     },
-
-    /* Strictness */
     "strict": true,
     "noImplicitOverride": true,
     "noImplicitReturns": true,
