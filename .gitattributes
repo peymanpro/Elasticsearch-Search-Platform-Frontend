@@ -1,0 +1,6 @@
+* text=auto eol=lf
+*.ts   linguist-language=TypeScript
+*.tsx  linguist-language=TypeScript
+pnpm-lock.yaml linguist-generated=true
+dist/** linguist-generated=true
+coverage/** linguist-generated=true
