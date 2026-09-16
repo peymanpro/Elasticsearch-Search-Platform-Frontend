@@ -4,8 +4,8 @@ import { ApiError } from '@/shared/api/api-error';
 
 interface ErrorStateProps {
   error: unknown;
-  onRetry?: () => void;
-  action?: ReactNode;
+  onRetry?: (() => void) | undefined;
+  action?: ReactNode | undefined;
 }
 
 function describeError(error: unknown): string {
