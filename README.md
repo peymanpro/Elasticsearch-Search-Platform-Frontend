@@ -196,6 +196,10 @@ The Vitest suite contains an architecture test that runs
 `pnpm arch` inside the test runner. A layer violation fails the
 same command as a behavior regression.
 
+## Companion backend repository
+
+The companion API and Elasticsearch configuration live in [Elasticsearch Search Platform](https://github.com/peymanpro/Elasticsearch-Search-Platform). The backend owns indexing, query execution, relevance behavior, and API responses; this repository owns the browser experience, URL-backed search state, result presentation, and frontend quality gates. Run both repositories to evaluate the end-to-end experience.
+
 ## Documentation
 
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) - how to work on the project,
